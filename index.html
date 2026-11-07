@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ScratchJr Number Adventure</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg1:#e8f6ff;--bg2:#fff4e0;--card:#fff;--text:#2b2f48;--muted:#5d6580;--accent:#7a4fd6;--ok:#2fb35f;--bad:#e5484d;--line:#d6dcf0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#171a2e;--bg2:#241a2e;--card:#222744;--text:#f4f5ff;--muted:#b4bbdc;--accent:#a98bff;--line:#363d68}}
+:root[data-theme="dark"]{--bg1:#171a2e;--bg2:#241a2e;--card:#222744;--text:#f4f5ff;--muted:#b4bbdc;--accent:#a98bff;--line:#363d68}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--text);background:linear-gradient(160deg,var(--bg1),var(--bg2));font-family:"Comic Sans MS","Chalkboard SE","Baloo 2",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:20px 16px 40px}
+header{text-align:center;margin-bottom:12px}
+h1{margin:0 0 4px;font-size:clamp(26px,6vw,44px);letter-spacing:.5px}
+h1 span{background:linear-gradient(90deg,#f5a000,#e5484d,#a855f7,#2f9de4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);margin:0;font-size:18px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:3px solid var(--line);border-radius:20px;padding:10px 18px;margin:14px 0;font-weight:700;font-size:18px;flex-wrap:wrap}
+.bar b{color:var(--accent);font-size:22px}
+button{font:inherit;cursor:pointer}
+.reset{background:#ffd43b;color:#3a2f00;border:none;border-radius:14px;padding:8px 16px;font-weight:800;box-shadow:0 3px 0 #c9a100}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.tile{aspect-ratio:1;border:none;border-radius:50%;background:var(--c);color:#fff;font:inherit;font-size:clamp(28px,8vw,56px);font-weight:900;text-shadow:0 3px 0 rgba(0,0,0,.25);box-shadow:0 6px 0 rgba(0,0,0,.22),inset 0 -6px 0 rgba(0,0,0,.1);transition:transform .15s}
+.tile:hover:not(:disabled){transform:translateY(-4px) rotate(-4deg) scale(1.07)}
+.tile:disabled{cursor:default;box-shadow:none;transform:none}
+.tile.ok{background:var(--ok)}
+.tile.bad{background:var(--bad)}
+.overlay{position:fixed;inset:0;background:rgba(20,16,50,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:28px;max-width:680px;width:100%;max-height:92vh;overflow:auto;padding:24px;border:6px solid #ffd43b}
+.qn{font-size:17px;color:var(--muted);font-weight:800}
+.tag{display:inline-block;color:#fff;border-radius:20px;padding:3px 14px;font-size:14px;font-weight:800;margin-left:8px}
+.tag.l1{background:#2f9de4}.tag.l2{background:#f28c1e}
+.q{font-size:clamp(21px,4.5vw,28px);font-weight:800;margin:14px 0 18px;line-height:1.5}
+.opt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;text-align:left;background:var(--bg1);color:var(--text);border:4px solid var(--line);border-radius:18px;padding:12px 16px;margin-bottom:12px;font-size:clamp(19px,4vw,24px);font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 22%,var(--card))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 22%,var(--card))}
+.fb{margin-top:6px;font-weight:800;font-size:22px;min-height:30px}
+.go{margin-top:12px;background:var(--accent);color:#fff;border:none;border-radius:16px;padding:12px 28px;font-weight:800;font-size:20px;display:none;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.final{text-align:center}
+.final .big{font-size:64px;font-weight:900;color:var(--accent)}
+/* ScratchJr-style blocks */
+.blk{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:14px;color:#fff;font-weight:800;font-size:.85em;vertical-align:middle;margin:0 3px;border-bottom:5px solid rgba(0,0,0,.25);text-shadow:0 1px 0 rgba(0,0,0,.2);line-height:1.2}
+.blk .ic{background:#fff;color:inherit;border-radius:8px;padding:0 7px;font-size:1.05em;text-shadow:none}
+.blk .nm{background:rgba(255,255,255,.9);color:#333;border-radius:10px;padding:0 9px;text-shadow:none}
+.trig{background:#f2b705;color:#3a2f00;text-shadow:none}.trig .ic{color:#1b9e4b}
+.motion{background:#2f9de4}.motion .ic{color:#2f9de4}
+.looks{background:#a855f7}.looks .ic{color:#a855f7}
+.sound{background:#2fb35f}.sound .ic{color:#2fb35f}
+.control{background:#f28c1e}.control .ic{color:#f28c1e}
+.end{background:#e5484d}.end .ic{color:#e5484d}
+.chip{display:inline-block;border-radius:50%;width:1.1em;height:1.1em;vertical-align:middle;margin-right:4px;border:2px solid rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🐱 ScratchJr <span>Number Adventure</span></h1>
+    <p class="sub">Pick a number to reveal your question!</p>
+  </header>
+  <div class="bar">
+    <div>⭐ Score: <b id="score">0</b> / 20</div>
+    <div>Answered: <b id="done">0</b> / 20</div>
+    <button class="reset" id="reset">↻ New game</button>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="overlay" id="ov"><div class="modal" id="modal"></div></div>
+
+<script>
+// ---- block helpers (ScratchJr colors) ----
+const blk = (cls, icon, name, num) => `<span class="blk ${cls}"><span class="ic">${icon}</span>${name?`<span>${name}</span>`:""}${num!=null?`<span class="nm">${num}</span>`:""}</span>`;
+const RIGHT = (n=1)=>blk("motion","▶","Move right",n);
+const LEFT  = (n=1)=>blk("motion","◀","Move left",n);
+const UP    = (n=1)=>blk("motion","▲","Move up",n);
+const DOWN  = (n=1)=>blk("motion","▼","Move down",n);
+const FLAG  = ()=>blk("trig","⚑","Start on green flag");
+const HOP   = ()=>blk("motion","⤴","Hop",1);
+const SAY   = ()=>blk("looks","💬","Say");
+const SOUND = ()=>blk("sound","🔊","Pop");
+const WAIT  = ()=>blk("control","⏱","Wait");
+const END   = ()=>blk("end","⏹","End");
+const dot = (c,t)=>`<span class="chip" style="background:${c}"></span>${t}`;
+
+const Q = [
+ // Lesson 1 – ScratchJr (very easy)
+ {l:"L1",q:"Which one is a <b>character</b>?",o:["🐱 Cat","🪑 Chair","📕 Book"],a:0},
+ {l:"L1",q:"Which block moves the cat to the <b>right</b>?",o:[RIGHT(),LEFT(),END()],a:0},
+ {l:"L1",q:"Which block moves the cat to the <b>left</b>?",o:[RIGHT(),FLAG(),LEFT()],a:2},
+ {l:"L1",q:"Programming means giving <b>instructions</b> to a…",o:["Computer 💻","Pizza 🍕","Shoe 👟"],a:0},
+ {l:"L1",q:"ScratchJr helps us learn to…",o:["Sleep 😴","Code 💻","Cook 🍳"],a:1},
+ {l:"L1",q:"To run the program, we ______ the blocks.",o:["Eat 🍎","Throw ⚽","Tap 👆"],a:2},
+ {l:"L1",q:`The cat moves how many steps?<br>${RIGHT(5)}`,o:["1 step","5 steps","10 steps"],a:1},
+ {l:"L1",q:"Which one is a ScratchJr <b>block</b>?",o:["🍕 Pizza",RIGHT(),"🚗 Car"],a:1},
+ {l:"L1",q:"What color are the <b>Motion</b> blocks?",o:[dot("#e5484d","Red"),dot("#f2b705","Yellow"),dot("#2f9de4","Blue")],a:2},
+ {l:"L1",q:`How would the cat move if these blocks are tapped?<br>${LEFT()}${RIGHT()}`,o:["Left, then right","The cat will not move","Right, then left"],a:0},
+ // Lesson 2 – Events (very easy)
+ {l:"L2",q:"What does the <b>Play button ▶</b> do?",o:["It starts the game","It turns the game off","It makes the game sleep 😴"],a:0},
+ {l:"L2",q:"Which block <b>starts</b> a program?",o:[END(),RIGHT(),FLAG()],a:2},
+ {l:"L2",q:`What color is this block?<br>${FLAG()}`,o:[dot("#f2b705","Yellow"),dot("#2f9de4","Blue"),dot("#e5484d","Red")],a:0},
+ {l:"L2",q:`What color is this block?<br>${END()}`,o:[dot("#2fb35f","Green"),dot("#e5484d","Red"),dot("#f2b705","Yellow")],a:1},
+ {l:"L2",q:`What color is this block?<br>${SAY()}`,o:[dot("#e5484d","Red"),dot("#2f9de4","Blue"),dot("#a855f7","Purple")],a:2},
+ {l:"L2",q:`What color is this block?<br>${SOUND()}`,o:[dot("#2fb35f","Green"),dot("#2f9de4","Blue"),dot("#f2b705","Yellow")],a:0},
+ {l:"L2",q:`Omar connected these blocks.<br>${FLAG()}${RIGHT(5)}${LEFT(5)}<br>How will he start to move the cat?`,o:["With a tap on the green flag icon","With a tap on the cat character","With a tap on the stage background"],a:0},
+ {l:"L2",q:"You tap the <b>green flag</b>. What happens?",o:["The program starts 🎉","The cat goes to sleep","The screen turns off"],a:0},
+ {l:"L2",q:`Where do we put this block?<br>${FLAG()}`,o:["At the start","Under the table","In the trash"],a:0},
+ {l:"L2",q:"Colors help us find ______ quickly.",o:["Blocks","Shoes","Pizza"],a:0}
+];
+
+let order, score, done;
+const $ = id => document.getElementById(id);
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+function start(){
+  order = shuffle(Q.map((_,i)=>i));
+  score = 0; done = 0;
+  const g = $("grid"); g.innerHTML = "";
+  for (let n=0;n<20;n++){
+    const b = document.createElement("button");
+    b.className = "tile"; b.textContent = n+1; b.id = "t"+n;
+    b.style.setProperty("--c","hsl("+Math.round((n*137.5)%360)+",85%,52%)");
+    b.onclick = () => openQ(n);
+    g.appendChild(b);
+  }
+  update(); $("ov").classList.remove("show");
+}
+function update(){ $("score").textContent = score; $("done").textContent = done; }
+
+function openQ(n){
+  const item = Q[order[n]];
+  const opts = shuffle(item.o.map((t,i)=>({t,c:i===item.a})));
+  const m = $("modal");
+  m.innerHTML = `<div class="qn">Question ${n+1}<span class="tag ${item.l==="L1"?"l1":"l2"}">${item.l==="L1"?"Lesson 1":"Lesson 2"}</span></div>
+    <div class="q">${item.q}</div><div id="opts"></div><div class="fb" id="fb"></div>
+    <button class="go" id="go">Back to numbers ➜</button>`;
+  const box = m.querySelector("#opts");
+  opts.forEach(o=>{
+    const b = document.createElement("button");
+    b.className = "opt"; b.innerHTML = o.t;
+    b.onclick = () => {
+      box.querySelectorAll(".opt").forEach((x,i)=>{ x.disabled = true; if (opts[i].c) x.classList.add("ok"); });
+      if (!o.c) b.classList.add("bad");
+      done++; if (o.c) score++;
+      const t = $("t"+n); t.disabled = true; t.classList.add(o.c?"ok":"bad"); t.textContent = o.c?"✓":"✗";
+      $("fb").textContent = o.c ? "🎉 Great job! +1 star" : "😊 Nice try! The right answer is highlighted.";
+      $("fb").style.color = o.c ? "var(--ok)" : "var(--bad)";
+      update();
+      const go = $("go"); go.style.display = "inline-block";
+      go.onclick = () => { $("ov").classList.remove("show"); if (done===20) finish(); };
+    };
+    box.appendChild(b);
+  });
+  $("ov").classList.add("show");
+}
+
+function finish(){
+  const pct = Math.round(score/20*100);
+  const msg = pct>=90 ? "🏆 Super Star Coder!" : pct>=70 ? "🌟 Great job!" : pct>=50 ? "👍 Good try — let’s practice more!" : "💪 Let’s review and play again!";
+  $("modal").innerHTML = `<div class="final"><div style="font-size:56px">🐱</div><h2>${msg}</h2>
+    <div class="big">${score} / 20</div><p class="sub">${pct}% correct</p>
+    <button class="go" style="display:inline-block" id="again">Play again ↻</button></div>`;
+  $("again").onclick = start;
+  $("ov").classList.add("show");
+}
+$("reset").onclick = start;
+start();
+</script>
+</body>
+</html>
